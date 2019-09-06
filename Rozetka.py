@@ -1,9 +1,9 @@
-from IpBlocked import IpBlocked
+from .IpBlocked import IpBlocked
 from bs4 import BeautifulSoup
 import time
 from threading import Thread
 
-from Proxy import Proxy
+from .Proxy import Proxy
 
 
 class Rozetka(Thread):
@@ -21,7 +21,7 @@ class Rozetka(Thread):
         """set page with results"""
         if self._run:
             url = self._url.format(self._text + page)
-            print(url)
+            #print(url)
             try:
                 self._response = self._proxy.get(url, cookies=cookies).text
             except Exception:

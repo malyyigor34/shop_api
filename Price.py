@@ -1,7 +1,8 @@
 from threading import Thread
 
 from .IpBlocked import IpBlocked
-import requests
+from .Proxy import Proxy
+
 from bs4 import BeautifulSoup
 import re
 
@@ -15,10 +16,11 @@ class Price(Thread):
         self._name = 'price.ua'
         self._articles = []
         self._run = True
+        self._proxy = Proxy(self._name)
 
     def _find_seller(self, price_soup):
         seller_url = price_soup.find('a', {'class': 'store-link'}).get('href')
-        seller_response = requests.get(seller_url).text
+        seller_response = self._proxy.get(seller_url).text
         seller_soup = BeautifulSoup(seller_response, 'html.parser')
         seller = seller_soup.find('h1', {'class': 'h2'}).text
         return seller
@@ -29,7 +31,7 @@ class Price(Thread):
             url = self._url.format(self._text + page)
             print(url)
             try:
-                self._response = requests.get(url, cookies=cookies, timeout=6).text
+                self._response = self._proxy.get(url, cookies=cookies).text
             except Exception:
                 print(self._domain + ' blocked by IP')
                 self._run = False
@@ -65,12 +67,12 @@ class Price(Thread):
                     describe = None
 
                 try:
-                    response = requests.get(article).text
+                    response = self._proxy.get(article).text
                     soup = BeautifulSoup(response, 'html.parser')
                     price_url = soup.find('li', {'class': 'block-wrapper simple3 prices noactive'}).find('a').get('onclick')
                     price_url = price_url.replace("this.href='", '').replace("'", '')
 
-                    price_response = requests.get(price_url).text
+                    price_response = self._proxy.get(price_url).text
                     price_soup = BeautifulSoup(price_response, 'html.parser')
 
                     price = price_soup.find('span', {'class': 'price'}).text
@@ -145,7 +147,7 @@ class Price(Thread):
 
     def parse_one(self):
         result = []
-        response = requests.get(self._text)
+        response = self._proxy.get(self._text)
         response = response.text
         soup = BeautifulSoup(response, 'html.parser')
         try:
@@ -165,7 +167,7 @@ class Price(Thread):
             price_url = soup.find('a', {'class': 'border-radius-topline-6 ga_mdl_tab_price'}).get('href')
             price_url += '/?order=price_asc'
 
-            price_repsonse = requests.get(price_url).text
+            price_repsonse = self._proxy.get(price_url).text
             price_soup = BeautifulSoup(price_repsonse, 'html.parser')
             shop = price_soup.find('div', {'id': 'table-prices'})
 
