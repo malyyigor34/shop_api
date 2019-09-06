@@ -21,14 +21,11 @@ class ArticleView(APIView):
             price = Price(q)
             price.set_text(search)
             price.start()
-
-
         except Exception:
             response = {
                 'error': 'Error on parsing data from Rozetka',
                 'articles': []
             }
-
 
         try:
             rozetka = Rozetka(q)
@@ -40,9 +37,13 @@ class ArticleView(APIView):
                 'error': 'Error on parsing data from Rozetka',
                 'articles': []
             }
-
-        rozetka.join()
-        price.join()
+        try:
+            rozetka.join()
+            price.join()
+        except Exception:
+            response = {
+                'error': 'Error on join thread', 'articles': []
+            }
         try:
             response = []
             response += q.get()

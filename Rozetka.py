@@ -1,11 +1,12 @@
-from .IpBlocked import IpBlocked
+from IpBlocked import IpBlocked
 from bs4 import BeautifulSoup
-import requests
 import time
-from .AbstractParser import AbstractParser
+from threading import Thread
+
+from Proxy import Proxy
 
 
-class Rozetka(AbstractParser):
+class Rozetka(Thread):
     def __init__(self, q):
         super(Rozetka, self).__init__()
         self._q = q
@@ -14,7 +15,21 @@ class Rozetka(AbstractParser):
         self._name = 'Rozetka'
         self._articles = []
         self._run = True
+        self._proxy = Proxy(self._name)
 
+    def _search(self, page='', cookies={}):
+        """set page with results"""
+        if self._run:
+            url = self._url.format(self._text + page)
+            print(url)
+            try:
+                self._response = self._proxy.get(url, cookies=cookies).text
+            except Exception:
+                print(self._domain + ' blocked by IP')
+                self._run = False
+
+    def set_text(self, text):
+        self._text = text
 
     def _find_articles(self):
         """find articles"""
@@ -32,7 +47,7 @@ class Rozetka(AbstractParser):
         i = 0
         for article in self._articles[:32]:
             print(article)
-            response = requests.get(article).text
+            response = self._proxy.get(article).text
             soup = BeautifulSoup(response, 'html.parser')
 
             try:
@@ -90,9 +105,16 @@ class Rozetka(AbstractParser):
             i += 1
         return result
 
+    def run(self):
+        print('ok')
+        if self._text.find(self._domain) != -1:
+            self._articles = [self._text]
+        else:
+            self._search()
+            self._find_articles()
 
-rozetka_articles = {
-    'block': 'div',
-    'id': 'class',
-    'name': 'g-i-tile-i-box'
-}
+        result = self._parse_articles()
+        self._q.put(result)
+
+
+

@@ -5,11 +5,8 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
-from .AbstractParser import AbstractParser
-#from Driver import Driver
-import time
 
-class Price(AbstractParser, Thread):
+class Price(Thread):
     def __init__(self, q):
         super(Price, self).__init__()
         self._q = q
@@ -25,6 +22,19 @@ class Price(AbstractParser, Thread):
         seller_soup = BeautifulSoup(seller_response, 'html.parser')
         seller = seller_soup.find('h1', {'class': 'h2'}).text
         return seller
+
+    def _search(self, page='', cookies={}):
+        """set page with results"""
+        if self._run:
+            url = self._url.format(self._text + page)
+            print(url)
+            try:
+                self._response = requests.get(url, cookies=cookies, timeout=6).text
+            except Exception:
+                print(self._domain + ' blocked by IP')
+                self._run = False
+    def set_text(self, text):
+        self._text = text
 
     def _find_img(self, soup):
         img = soup.find('img', {'id': 'model-big-photo-img'}).get('src')
