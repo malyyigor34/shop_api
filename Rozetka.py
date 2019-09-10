@@ -21,10 +21,11 @@ class Rozetka(Thread):
         """set page with results"""
         if self._run:
             url = self._url.format(self._text + page)
-            #print(url)
             try:
                 self._response = self._proxy.get(url, cookies=cookies).text
-            except Exception:
+               # print(self._response)
+            except Exception as err:
+                print(err)
                 print(self._domain + ' blocked by IP')
                 self._run = False
 
@@ -46,7 +47,6 @@ class Rozetka(Thread):
         result = []
         i = 0
         for article in self._articles[:32]:
-            print(article)
             response = self._proxy.get(article).text
             soup = BeautifulSoup(response, 'html.parser')
 
@@ -106,7 +106,6 @@ class Rozetka(Thread):
         return result
 
     def run(self):
-        print('ok')
         if self._text.find(self._domain) != -1:
             self._articles = [self._text]
         else:
@@ -114,6 +113,7 @@ class Rozetka(Thread):
             self._find_articles()
 
         result = self._parse_articles()
+        print(result)
         self._q.put(result)
 
 

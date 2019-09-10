@@ -99,7 +99,7 @@ class Price(Thread):
                         'seller': seller,
                         'link': article,
                         'price': int(price),
-                        'img': img
+                        'img': 'http://'+img
                     })
                 except TypeError:
                     continue
@@ -136,7 +136,7 @@ class Price(Thread):
                     'seller': seller,
                     'link': article,
                     'price': int(price),
-                    'img': img
+                    'img': 'http://'+img
                 })
                 if len(result) >= 30:
                     return result
@@ -196,7 +196,7 @@ class Price(Thread):
             'seller': seller,
             'link': self._text,
             'price': int(price),
-            'img': img
+            'img': 'http://'+img
         })
         return result
 

@@ -6,5 +6,6 @@ settings = {'price.ua': {
 }, 'Rozetka': {
     'name': 'rozetka.ua',
     'proxy': PATH_TO_PROXY_FILE
-}}
+},
+    'proxy': {'name': 'proxy'}}
 
