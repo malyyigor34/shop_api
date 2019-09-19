@@ -18,15 +18,15 @@ class ArticleView(APIView):
         print(search)
         q = Queue()
 
-        # try:
-        #     price = Price(q)
-        #     price.set_text(search)
-        #     price.start()
-        # except Exception:
-        #     response = {
-        #         'error': 'Error on parsing data from Price',
-        #         'articles': []
-        #     }
+        try:
+            price = Price(q)
+            price.set_text(search)
+            price.start()
+        except Exception:
+            response = {
+                'error': 'Error on parsing data from Price',
+                'articles': []
+            }
 
         try:
             rozetka = Rozetka(q)
@@ -40,7 +40,7 @@ class ArticleView(APIView):
             }
         try:
             rozetka.join()
-          #  price.join()
+            price.join()
         except Exception:
             response = {
                 'error': 'Error on join thread', 'articles': []
@@ -48,7 +48,7 @@ class ArticleView(APIView):
         try:
             response = []
             response += q.get()
-           # response += q.get()
+            response += q.get()
             response = sorted(response, key=lambda x: int(x.get('price')))
             response += {'error': 'no'}
 
@@ -57,5 +57,4 @@ class ArticleView(APIView):
                 'error': 'Error on get from queue',
                 'articles': []
             }
-       # response += q.get()
         return Response(response)
